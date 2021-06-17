@@ -1,4 +1,4 @@
-
+#include <Adafruit_NeoPixel.h>
 //#define DEBUG
 #ifdef DEBUG
   #define debugPrint(x)  Serial.print (x)
@@ -8,6 +8,10 @@
   #define debugPrintln(x)
 #endif
 
+byte brakeLight_runningBrightness = 50;
+byte brakeLight_brakeBrightness = 200;
+byte brakeLightLEDCount = 25;
+
 byte blinkerInputPin = 2;
 byte brakeInputPin = 3;
 byte blinkerRelayPin = 6;
@@ -15,6 +19,8 @@ byte brakeLightPin = 12;
 boolean blinkerRelayState;
 boolean brakeInputState;
 boolean blinkerInputState;
+
+Adafruit_NeoPixel brakeLight(brakeLightLEDCount, brakeLightPin, NEO_GRB + NEO_KHZ800);
 
 void setup() {
   pinMode(blinkerRelayPin, OUTPUT);
@@ -24,6 +30,9 @@ void setup() {
   Serial.begin(115200);  
   attachInterrupt(digitalPinToInterrupt(brakeInputPin), brakeISR, RISING);    //trigger interrupt when brake line goes high
   attachInterrupt(digitalPinToInterrupt(blinkerInputPin), blinkerISR, FALLING);   //trigger interrupt when blinker line is low, will need flags
+  brakeLight.begin();           // INITIALIZE NeoPixel strip object (REQUIRED)
+  brakeLight.show();            // Turn OFF all pixels ASAP
+  brakeLight.setBrightness(brakeLight_runningBrightness); // Set BRIGHTNESS (max = 255)
 }
 
 void loop() {
