@@ -32,6 +32,7 @@ void loop() {
     if(serialVal == 49){      //the number 1, toggle the relay ckt
       blinkerRelayState = !blinkerRelayState;
       digitalWrite(blinkerRelayPin, blinkerRelayState);
+      Serial.print("relay state: "); Serial.println(blinkerRelayState);
     }
   }
   blinkerInputState = digitalRead(blinkerInputPin);
