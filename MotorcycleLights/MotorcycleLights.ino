@@ -19,6 +19,8 @@ byte brakeLightPin = 12;
 boolean blinkerRelayState;
 boolean brakeInputState;
 boolean blinkerInputState;
+unsigned long previousMillis;
+unsigned long interval = 500;
 
 Adafruit_NeoPixel brakeLight(brakeLightLEDCount, brakeLightPin, NEO_GRB + NEO_KHZ800);
 
@@ -47,9 +49,12 @@ void loop() {
   }
   blinkerInputState = digitalRead(blinkerInputPin);
   brakeInputState = digitalRead(brakeInputPin);
-  Serial.print("brake input: "); Serial.print(brakeInputState);
-  Serial.print("  blinker input: "); Serial.println(blinkerInputState);
-  delay(500);
+  unsigned long currentMillis = millis();
+  if(currentMillis - previousMillis >= interval){
+    previousMillis = currentMillis;
+    Serial.print("brake input: "); Serial.print(brakeInputState);
+    Serial.print("  blinker input: "); Serial.println(blinkerInputState);
+  }
 
   if(brakeInputState){      //if brakes are high, do the brakelight
     brakeLight.setBrightness(brakeLight_brakeBrightness);
