@@ -33,6 +33,7 @@ void setup() {
   brakeLight.begin();           // INITIALIZE NeoPixel strip object (REQUIRED)
   brakeLight.show();            // Turn OFF all pixels ASAP
   brakeLight.setBrightness(brakeLight_runningBrightness); // Set BRIGHTNESS (max = 255)
+  brakeLight.show();
 }
 
 void loop() {
@@ -49,6 +50,15 @@ void loop() {
   Serial.print("brake input: "); Serial.print(brakeInputState);
   Serial.print("  blinker input: "); Serial.println(blinkerInputState);
   delay(500);
+
+  if(brakeInputState){      //if brakes are high, do the brakelight
+    brakeLight.setBrightness(brakeLight_brakeBrightness);
+    brakeLight.show();
+  }
+  else{                     //if brakes are low, go back to running brightness
+    brakeLight.setBrightness(brakeLight_runningBrightness);
+    brakeLight.show();
+  }
 }
 
 void brakeISR(){
