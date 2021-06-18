@@ -16,14 +16,13 @@ byte blinkerInputPin = 2;
 byte brakeInputPin = 3;
 byte blinkerRelayPin = 6;
 byte brakeLightPin = 12;
-boolean blinkerRelayState;
+boolean blinkerRelayState;      //used as a flag to check the blinker
 boolean brakeInputState;
 boolean blinkerInputState;
-boolean blinkerFlag;
 unsigned long previousMillis;
+unsigned long previousBlinkerMillis;
 unsigned long interval = 500;
-unsigned long blinkerInterval = 500;
-unsigned long blinkerRelayDebounce = 100;
+unsigned long blinkerInterval = 400;
 
 Adafruit_NeoPixel brakeLight(brakeLightLEDCount, brakeLightPin, NEO_GRB + NEO_KHZ800);
 
@@ -58,19 +57,24 @@ void loop() {
     Serial.print("brake input: "); Serial.print(brakeInputState);
     Serial.print("  blinker input: "); Serial.println(blinkerInputState);
   }  
-  if(currentMillis - previousMillis >= blinkerInterval){      //handle the blinker relay every blinkerInterval
-    previousMillis = millis();
-    !blinkerRelayState;
-    digitalWrite(blinkerRelayPin, blinkerRelayState);
-    delay(blinkerRelayDebounce);     //allow enough time for the blinker relay to do its thing
-    if(blinkerRelayState == 0){     //if the relay is open, check the state of the blinker input
+  if(currentMillis - previousBlinkerMillis >= blinkerInterval){      //handle the blinker relay every blinkerInterval
+    previousBlinkerMillis = millis();
+    if(blinkerRelayState == 1){
+      blinkerRelayState = !blinkerRelayState;
+      digitalWrite(blinkerRelayPin, blinkerRelayState);
+    }
+    else{     //if the relay is open, check the state of the blinker input
       blinkerInputState = digitalRead(blinkerInputPin);
       if(blinkerInputState){     //if the blinker input is high, turn off the blinkers
         blinkerRelayState = 0;
         digitalWrite(blinkerRelayPin, blinkerRelayState);
       }
+      else{     //otherwise toggle the blinkers
+        blinkerRelayState = !blinkerRelayState;
+        digitalWrite(blinkerRelayPin, blinkerRelayState);
+      }
     }
-  }  
+  }
   if(brakeInputState){      //if brakes are high, do the brakelight
     brakeLight.setBrightness(brakeLight_brakeBrightness);
     brakeLight.show();
