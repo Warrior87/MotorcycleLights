@@ -19,8 +19,11 @@ byte brakeLightPin = 12;
 boolean blinkerRelayState;
 boolean brakeInputState;
 boolean blinkerInputState;
+boolean blinkerFlag;
 unsigned long previousMillis;
 unsigned long interval = 500;
+unsigned long blinkerInterval = 500;
+unsigned long blinkerRelayDebounce = 100;
 
 Adafruit_NeoPixel brakeLight(brakeLightLEDCount, brakeLightPin, NEO_GRB + NEO_KHZ800);
 
@@ -39,7 +42,7 @@ void setup() {
 }
 
 void loop() {
-  if(Serial.available()>0){
+  if(Serial.available()>0){     //if serial information is available
     byte serialVal = Serial.read();
     if(serialVal == 49){      //the number 1, toggle the relay ckt
       blinkerRelayState = !blinkerRelayState;
@@ -54,8 +57,20 @@ void loop() {
     previousMillis = currentMillis;
     Serial.print("brake input: "); Serial.print(brakeInputState);
     Serial.print("  blinker input: "); Serial.println(blinkerInputState);
-  }
-
+  }  
+  if(currentMillis - previousMillis >= blinkerInterval){      //handle the blinker relay every blinkerInterval
+    previousMillis = millis();
+    !blinkerRelayState;
+    digitalWrite(blinkerRelayPin, blinkerRelayState);
+    delay(blinkerRelayDebounce);     //allow enough time for the blinker relay to do its thing
+    if(blinkerRelayState == 0){     //if the relay is open, check the state of the blinker input
+      blinkerInputState = digitalRead(blinkerInputPin);
+      if(blinkerInputState){     //if the blinker input is high, turn off the blinkers
+        blinkerRelayState = 0;
+        digitalWrite(blinkerRelayPin, blinkerRelayState);
+      }
+    }
+  }  
   if(brakeInputState){      //if brakes are high, do the brakelight
     brakeLight.setBrightness(brakeLight_brakeBrightness);
     brakeLight.show();
@@ -63,13 +78,18 @@ void loop() {
   else{                     //if brakes are low, go back to running brightness
     brakeLight.setBrightness(brakeLight_runningBrightness);
     brakeLight.show();
-  }
+  }  
 }
 
 void brakeISR(){
   Serial.println("brake ISR triggered");
+  if(brakeInputState){      //if brakes are high, do the brakelight
+    brakeLight.setBrightness(brakeLight_brakeBrightness);
+    brakeLight.show();
+  }
 }
 
 void blinkerISR(){
   Serial.println("blinker ISR triggered");
+  blinkerFlag = 1;
 }
