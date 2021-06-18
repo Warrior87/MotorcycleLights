@@ -34,7 +34,7 @@ void setup() {
   pinMode(brakeInputPin, INPUT);
   Serial.begin(115200);  
   attachInterrupt(digitalPinToInterrupt(brakeInputPin), brakeISR, RISING);    //trigger interrupt when brake line goes high
-  attachInterrupt(digitalPinToInterrupt(blinkerInputPin), blinkerISR, FALLING);   //trigger interrupt when blinker line is low, will need flags
+//  attachInterrupt(digitalPinToInterrupt(blinkerInputPin), blinkerISR, FALLING);   //trigger interrupt when blinker line is low, will need flags
   brakeLight.begin();           // INITIALIZE NeoPixel strip object (REQUIRED)
   brakeLight.show();            // Turn OFF all pixels ASAP
   brakeLight.setBrightness(brakeLight_runningBrightness); // Set BRIGHTNESS (max = 255)
@@ -89,7 +89,7 @@ void brakeISR(){
   }
 }
 
-void blinkerISR(){
-  Serial.println("blinker ISR triggered");
-  blinkerFlag = 1;
-}
+//void blinkerISR(){
+//  Serial.println("blinker ISR triggered");
+//  blinkerFlag = 1;
+//}
