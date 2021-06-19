@@ -9,8 +9,8 @@
 #endif
 
 byte brakeLight_runningBrightness = 50;
-byte brakeLight_brakeBrightness = 200;
-byte brakeLightLEDCount = 25;
+byte brakeLight_brakeBrightness = 255;
+byte brakeLightLEDCount = 40;
 
 byte blinkerInputPin = 2;
 byte brakeInputPin = 3;
@@ -35,9 +35,10 @@ void setup() {
   attachInterrupt(digitalPinToInterrupt(brakeInputPin), brakeISR, RISING);    //trigger interrupt when brake line goes high
 //  attachInterrupt(digitalPinToInterrupt(blinkerInputPin), blinkerISR, FALLING);   //trigger interrupt when blinker line is low, will need flags
   brakeLight.begin();           // INITIALIZE NeoPixel strip object (REQUIRED)
-  brakeLight.show();            // Turn OFF all pixels ASAP
-  brakeLight.setBrightness(brakeLight_runningBrightness); // Set BRIGHTNESS (max = 255)
-  brakeLight.show();
+  //brakeLight.show();            // Turn OFF all pixels ASAP
+  //brakeLight.setBrightness(brakeLight_runningBrightness); // Set BRIGHTNESS (max = 255)
+  colorWipe(brakeLight.Color(brakeLight_runningBrightness, 0, 0));
+//  brakeLight.show();
 }
 
 void loop() {
@@ -76,21 +77,25 @@ void loop() {
     }
   }
   if(brakeInputState){      //if brakes are high, do the brakelight
-    brakeLight.setBrightness(brakeLight_brakeBrightness);
-    brakeLight.show();
+    colorWipe(brakeLight.Color(brakeLight_brakeBrightness, 0, 0));
   }
   else{                     //if brakes are low, go back to running brightness
-    brakeLight.setBrightness(brakeLight_runningBrightness);
-    brakeLight.show();
+    colorWipe(brakeLight.Color(brakeLight_runningBrightness, 0, 0));
   }  
 }
 
 void brakeISR(){
   Serial.println("brake ISR triggered");
   if(brakeInputState){      //if brakes are high, do the brakelight
-    brakeLight.setBrightness(brakeLight_brakeBrightness);
-    brakeLight.show();
+    colorWipe(brakeLight.Color(brakeLight_brakeBrightness, 0, 0));
   }
+}
+
+void colorWipe(uint32_t color) {
+  for(int i=0; i<brakeLight.numPixels(); i++) { // For each pixel in strip...
+    brakeLight.setPixelColor(i, color);         //  Set pixel's color (in RAM)
+  }
+    brakeLight.show();                          //  Update strip to match
 }
 
 //void blinkerISR(){
